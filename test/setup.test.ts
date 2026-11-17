@@ -3,7 +3,7 @@ import type { AddressInfo } from "node:net";
 import { afterEach, describe, expect, it } from "vitest";
 import { sendRaw } from "./helpers/raw-client.ts";
 
-describe("예시 테스트", () => {
+describe("테스트 환경", () => {
   let server: net.Server | undefined;
 
   afterEach(() => {
