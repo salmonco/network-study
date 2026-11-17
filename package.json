@@ -1,0 +1,18 @@
+{
+  "name": "network-study",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "node:net 만으로 HTTP/1.1 서버를 TDD로 직접 구현하며 네트워크 배우기",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "dev": "node --watch src/main.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}
