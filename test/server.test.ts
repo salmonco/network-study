@@ -49,4 +49,18 @@ describe("HTTP Server", () => {
     expect(snapshots[0]).toBe("");
     expect(response).toMatch(/^HTTP\/1\.1 200 OK\r\n/);
   });
+
+  it("없는 경로로 요청하면 404 Not Found로 응답한다", async () => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, "GET /nope HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    expect(response).toMatch(/^HTTP\/1\.1 404 Not Found\r\n/);
+  });
+
+  it("없는 경로로 요청하면 404 응답 하나만 온다", async () => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, "GET /nope HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    expect(response).toBe("HTTP\/1\.1 404 Not Found\r\n\r\n");
+  });
 });
