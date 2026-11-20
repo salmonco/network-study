@@ -78,6 +78,13 @@ describe("HTTP Server", () => {
     await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
     const { port } = server?.address() as AddressInfo;
     const response = await sendRaw(port, "GET /hello HTTP/1.1\r\nHost: localhost\r\n\r\n");
-    expect(response).toBe("HTTP/1.1 200 OK\r\n\r\n");
+    expect(response).toMatch(/^HTTP\/1\.1 200 OK\r\n/);
+  });
+
+  it("/hello로 요청하면 본문 hello를 응답한다", async () => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, "GET /hello HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
   });
 });
