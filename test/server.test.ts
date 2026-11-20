@@ -64,7 +64,7 @@ describe("HTTP Server", () => {
     expect(response).toBe("HTTP/1.1 404 Not Found\r\n\r\n");
   });
 
-  it.each(["/nope", "/abc", "/users/1", "/index.html"])(
+  it.each(["/hi", "/abc", "/users/1", "/index.html"])(
     "%s로 요청하면 404로 응답한다",
     async (path) => {
       await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
