@@ -61,7 +61,7 @@ describe("HTTP Server", () => {
     await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
     const { port } = server?.address() as AddressInfo;
     const response = await sendRaw(port, "GET /nope HTTP/1.1\r\nHost: localhost\r\n\r\n");
-    expect(response).toBe("HTTP\/1\.1 404 Not Found\r\n\r\n");
+    expect(response).toBe("HTTP/1.1 404 Not Found\r\n\r\n");
   });
 
   it.each(["/nope", "/abc", "/users/1", "/index.html"])(
@@ -70,7 +70,7 @@ describe("HTTP Server", () => {
       await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
       const { port } = server?.address() as AddressInfo;
       const response = await sendRaw(port, `GET ${path} HTTP/1.1\r\nHost: localhost\r\n\r\n`);
-      expect(response).toBe("HTTP\/1\.1 404 Not Found\r\n\r\n");
+      expect(response).toBe("HTTP/1.1 404 Not Found\r\n\r\n");
     },
   );
 });
