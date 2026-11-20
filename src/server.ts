@@ -8,7 +8,7 @@ export const createServer = () => {
       if (Buffer.concat(chunks).includes("\r\n\r\n")) {
         const message = Buffer.concat(chunks).toString();
         const path = message.split(" ")[1];
-        if (path !== "/") {
+        if (path !== "/" && path !== "/hello") {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
         } else {
           socket.write("HTTP/1.1 200 OK\r\n\r\n");

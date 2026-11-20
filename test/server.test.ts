@@ -73,4 +73,11 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 404 Not Found\r\n\r\n");
     },
   );
+
+  it("/hello로 요청하면 200으로 응답한다", async () => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, "GET /hello HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    expect(response).toBe("HTTP/1.1 200 OK\r\n\r\n");
+  });
 });
