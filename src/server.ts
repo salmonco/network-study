@@ -1,5 +1,7 @@
 import net from "node:net";
 
+const allowedPath = ["/", "/hello"];
+
 export const createServer = () => {
   return net.createServer((socket) => {
     const chunks: Buffer[] = [];
@@ -8,10 +10,10 @@ export const createServer = () => {
       if (Buffer.concat(chunks).includes("\r\n\r\n")) {
         const message = Buffer.concat(chunks).toString();
         const path = message.split(" ")[1];
-        if (path !== "/" && path !== "/hello") {
-          socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-        } else {
+        if (path !== undefined && allowedPath.includes(path)) {
           socket.write("HTTP/1.1 200 OK\r\n\r\n");
+        } else {
+          socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
         }
         socket.end();
       }
