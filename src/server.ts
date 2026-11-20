@@ -1,6 +1,13 @@
 import net from "node:net";
 
-const allowedPath = ["/", "/hello"];
+const bodies = {
+  "/": "",
+  "/hello": "hello",
+};
+
+const isAllowedPath = (path: string): path is keyof typeof bodies => {
+  return Object.keys(bodies).includes(path);
+};
 
 export const createServer = () => {
   return net.createServer((socket) => {
@@ -10,17 +17,14 @@ export const createServer = () => {
       if (Buffer.concat(chunks).includes("\r\n\r\n")) {
         const message = Buffer.concat(chunks).toString();
         const path = message.split(" ")[1];
-        if (path !== undefined && allowedPath.includes(path)) {
+        if (path !== undefined && isAllowedPath(path)) {
           socket.write("HTTP/1.1 200 OK\r\n");
-          if (path === "/hello") {
-            socket.write("Content-Length: 5\r\n");
-          }
+          const body = bodies[path];
+          socket.write(`Content-Length: ${body.length}\r\n`);
           socket.write("\r\n");
+          socket.write(body);
         } else {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-        }
-        if (path === "/hello") {
-          socket.write("hello");
         }
         socket.end();
       }
