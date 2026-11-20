@@ -3,6 +3,7 @@ import net from "node:net";
 const bodies = {
   "/": "",
   "/hello": "hello",
+  "/hi-ko": "안녕",
 };
 
 const isAllowedPath = (path: string): path is keyof typeof bodies => {
@@ -20,7 +21,7 @@ export const createServer = () => {
         if (path !== undefined && isAllowedPath(path)) {
           socket.write("HTTP/1.1 200 OK\r\n");
           const body = bodies[path];
-          socket.write(`Content-Length: ${body.length}\r\n`);
+          socket.write(`Content-Length: ${Buffer.byteLength(body)}\r\n`);
           socket.write("\r\n");
           socket.write(body);
         } else {

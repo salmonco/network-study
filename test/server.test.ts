@@ -87,4 +87,11 @@ describe("HTTP Server", () => {
     const response = await sendRaw(port, "GET /hello HTTP/1.1\r\nHost: localhost\r\n\r\n");
     expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
   });
+
+  it("/hi-ko로 요청하면 한글 본문의 바이트 길이를 Content-Length로 보낸다", async () => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, "GET /hi-ko HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 6\r\n\r\n안녕");
+  });
 });
