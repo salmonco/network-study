@@ -17,7 +17,12 @@ export const createServer = () => {
       chunks.push(chunk);
       if (Buffer.concat(chunks).includes("\r\n\r\n")) {
         const message = Buffer.concat(chunks).toString();
-        const path = message.split(" ")[1];
+        const [method, path] = message.split(" ");
+        if (method !== "GET") {
+          socket.write("HTTP/1.1 405 Method Not Allowed\r\n\r\n");
+          socket.end();
+          return;
+        }
         if (path !== undefined && isAllowedPath(path)) {
           socket.write("HTTP/1.1 200 OK\r\n");
           const body = bodies[path];
