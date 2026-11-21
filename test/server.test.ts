@@ -114,4 +114,11 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
     },
   );
+
+  it("HEAD로 요청하면 본문 없이 GET과 같은 헤더로 응답한다", async () => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, "HEAD /hello HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n");
+  });
 });

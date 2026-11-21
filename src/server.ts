@@ -19,7 +19,7 @@ export const createServer = () => {
         const message = Buffer.concat(chunks).toString();
         const [method, path] = message.split(" ");
         const pathName = path?.split("?")[0];
-        if (method !== "GET") {
+        if (method !== "GET" && method !== "HEAD") {
           socket.write("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET\r\n\r\n");
           socket.end();
           return;
@@ -29,7 +29,9 @@ export const createServer = () => {
           const body = bodies[pathName];
           socket.write(`Content-Length: ${Buffer.byteLength(body)}\r\n`);
           socket.write("\r\n");
-          socket.write(body);
+          if (method !== "HEAD") {
+            socket.write(body);
+          }
         } else {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
         }
