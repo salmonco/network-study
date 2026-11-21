@@ -104,4 +104,14 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET\r\n\r\n");
     },
   );
+
+  it.each(["/hello?", "/hello?name=jisu", "/hello?x=1"])(
+    "쿼리 문자열이 붙어도 경로에 맞는 본문을 응답한다",
+    async (path) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(port, `GET ${path} HTTP/1.1\r\nHost: localhost\r\n\r\n`);
+      expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
+    },
+  );
 });
