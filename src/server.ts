@@ -26,7 +26,9 @@ export const createServer = () => {
         const [method, path] = message.split(" ");
         const pathName = path?.split("?")[0];
         if (method === undefined || !isAllowedMethod(method)) {
-          socket.write("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET, HEAD\r\n\r\n");
+          socket.write(
+            `HTTP/1.1 405 Method Not Allowed\r\nAllow: ${allowedMethods.join(", ")}\r\n\r\n`,
+          );
           socket.end();
           return;
         }
