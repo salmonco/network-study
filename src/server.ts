@@ -36,7 +36,7 @@ export const createServer = () => {
           socket.end();
           return;
         }
-        const [method, path, httpVersion] = tokens;
+        const [method, requestTarget, httpVersion] = tokens;
         if (httpVersion === undefined || !/^HTTP\/\d\.\d$/.test(httpVersion)) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
@@ -47,7 +47,7 @@ export const createServer = () => {
           socket.end();
           return;
         }
-        const pathName = path?.split("?")[0];
+        const path = requestTarget?.split("?")[0];
         if (method === undefined || !isAllowedMethod(method)) {
           socket.write(
             `HTTP/1.1 405 Method Not Allowed\r\nAllow: ${allowedMethods.join(", ")}\r\n\r\n`,
@@ -55,13 +55,13 @@ export const createServer = () => {
           socket.end();
           return;
         }
-        if (pathName === undefined || !isAllowedPath(pathName)) {
+        if (path === undefined || !isAllowedPath(path)) {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
           socket.end();
           return;
         }
         socket.write("HTTP/1.1 200 OK\r\n");
-        const body = bodies[pathName];
+        const body = bodies[path];
         socket.write(`Content-Length: ${Buffer.byteLength(body)}\r\n`);
         socket.write("\r\n");
         if (method !== "HEAD") {
