@@ -122,13 +122,15 @@ describe("HTTP Server", () => {
     expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n");
   });
 
-  it.each(["GARBAGE\r\n\r\n", "GET /hello\r\n\r\n", "GET /hello\r\nHost: localhost\r\n\r\n"])(
-    "요청줄 형식이 잘못된 %j 요청은 400 Bad Request로 응답한다",
-    async (request) => {
-      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
-      const { port } = server?.address() as AddressInfo;
-      const response = await sendRaw(port, request);
-      expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
-    },
-  );
+  it.each([
+    "GARBAGE\r\n\r\n",
+    "GET /hello\r\n\r\n",
+    "GET /hello\r\nHost: localhost\r\n\r\n",
+    "GET /hello HTTP/1.1 extra\r\nHost: localhost\r\n\r\n",
+  ])("요청줄 형식이 잘못된 %j 요청은 400 Bad Request로 응답한다", async (request) => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, request);
+    expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
+  });
 });

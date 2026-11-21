@@ -24,7 +24,13 @@ export const createServer = () => {
       if (Buffer.concat(chunks).includes("\r\n\r\n")) {
         const message = Buffer.concat(chunks).toString();
         const requestLine = message.split("\r\n")[0] ?? "";
-        const [method, path, httpVersion] = requestLine.split(" ");
+        const tokens = requestLine.split(" ");
+        if (tokens.length !== 3) {
+          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+          socket.end();
+          return;
+        }
+        const [method, path, httpVersion] = tokens;
         if (httpVersion === undefined || httpVersion === "") {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
