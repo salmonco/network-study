@@ -19,7 +19,7 @@ export const createServer = () => {
         const message = Buffer.concat(chunks).toString();
         const [method, path] = message.split(" ");
         if (method !== "GET") {
-          socket.write("HTTP/1.1 405 Method Not Allowed\r\n\r\n");
+          socket.write("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET\r\n\r\n");
           socket.end();
           return;
         }
