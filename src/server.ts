@@ -16,6 +16,12 @@ const isAllowedMethod = (method: string): method is (typeof allowedMethods)[numb
   return allowedMethods.includes(method as (typeof allowedMethods)[number]);
 };
 
+const allowedHttpVersions = ["HTTP/1.0", "HTTP/1.1"] as const;
+
+const isAllowedHttpVersion = (version: string): version is (typeof allowedHttpVersions)[number] => {
+  return allowedHttpVersions.includes(version as (typeof allowedHttpVersions)[number]);
+};
+
 export const createServer = () => {
   return net.createServer((socket) => {
     const chunks: Buffer[] = [];
@@ -36,7 +42,7 @@ export const createServer = () => {
           socket.end();
           return;
         }
-        if (httpVersion !== "HTTP/1.1") {
+        if (!isAllowedHttpVersion(httpVersion)) {
           socket.write("HTTP/1.1 505 HTTP Version Not Supported\r\n\r\n");
           socket.end();
           return;
