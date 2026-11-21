@@ -136,4 +136,14 @@ describe("HTTP Server", () => {
     const response = await sendRaw(port, request);
     expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
   });
+
+  it.each(["HTTP/2.0", "HTTP/3.0"])(
+    "지원하지 않는 HTTP 버전인 %s로 요청하면 505 HTTP Version Not Supported로 응답한다",
+    async (version) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(port, `GET /hello ${version}\r\nHost: localhost\r\n\r\n`);
+      expect(response).toBe("HTTP/1.1 505 HTTP Version Not Supported\r\n\r\n");
+    },
+  );
 });

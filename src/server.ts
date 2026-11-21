@@ -36,6 +36,11 @@ export const createServer = () => {
           socket.end();
           return;
         }
+        if (httpVersion !== "HTTP/1.1") {
+          socket.write("HTTP/1.1 505 HTTP Version Not Supported\r\n\r\n");
+          socket.end();
+          return;
+        }
         const pathName = path?.split("?")[0];
         if (method === undefined || !isAllowedMethod(method)) {
           socket.write(
