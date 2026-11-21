@@ -101,7 +101,7 @@ describe("HTTP Server", () => {
       await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
       const { port } = server?.address() as AddressInfo;
       const response = await sendRaw(port, `${method} /hello HTTP/1.1\r\nHost: localhost\r\n\r\n`);
-      expect(response).toBe("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET\r\n\r\n");
+      expect(response).toBe("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET, HEAD\r\n\r\n");
     },
   );
 

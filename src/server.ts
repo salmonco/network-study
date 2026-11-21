@@ -10,6 +10,12 @@ const isAllowedPath = (path: string): path is keyof typeof bodies => {
   return Object.keys(bodies).includes(path);
 };
 
+const allowedMethods = ["GET", "HEAD"] as const;
+
+const isAllowedMethod = (method: string): method is (typeof allowedMethods)[number] => {
+  return allowedMethods.includes(method as (typeof allowedMethods)[number]);
+};
+
 export const createServer = () => {
   return net.createServer((socket) => {
     const chunks: Buffer[] = [];
@@ -19,21 +25,22 @@ export const createServer = () => {
         const message = Buffer.concat(chunks).toString();
         const [method, path] = message.split(" ");
         const pathName = path?.split("?")[0];
-        if (method !== "GET" && method !== "HEAD") {
-          socket.write("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET\r\n\r\n");
+        if (method === undefined || !isAllowedMethod(method)) {
+          socket.write("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET, HEAD\r\n\r\n");
           socket.end();
           return;
         }
-        if (pathName !== undefined && isAllowedPath(pathName)) {
-          socket.write("HTTP/1.1 200 OK\r\n");
-          const body = bodies[pathName];
-          socket.write(`Content-Length: ${Buffer.byteLength(body)}\r\n`);
-          socket.write("\r\n");
-          if (method !== "HEAD") {
-            socket.write(body);
-          }
-        } else {
+        if (pathName === undefined || !isAllowedPath(pathName)) {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+          socket.end();
+          return;
+        }
+        socket.write("HTTP/1.1 200 OK\r\n");
+        const body = bodies[pathName];
+        socket.write(`Content-Length: ${Buffer.byteLength(body)}\r\n`);
+        socket.write("\r\n");
+        if (method !== "HEAD") {
+          socket.write(body);
         }
         socket.end();
       }
