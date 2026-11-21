@@ -31,7 +31,7 @@ export const createServer = () => {
           return;
         }
         const [method, path, httpVersion] = tokens;
-        if (!httpVersion?.match(/^HTTP\/\d\.\d$/)) {
+        if (httpVersion === undefined || !/^HTTP\/\d\.\d$/.test(httpVersion)) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
           return;
