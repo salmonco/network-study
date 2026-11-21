@@ -106,7 +106,7 @@ describe("HTTP Server", () => {
   );
 
   it.each(["/hello?", "/hello?name=jisu", "/hello?x=1"])(
-    "쿼리 문자열이 붙어도 경로에 맞는 본문을 응답한다",
+    "쿼리 문자열이 붙은 %s로 요청해도 경로에 맞는 본문을 응답한다",
     async (path) => {
       await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
       const { port } = server?.address() as AddressInfo;
