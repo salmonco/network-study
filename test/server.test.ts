@@ -146,4 +146,35 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 505 HTTP Version Not Supported\r\n\r\n");
     },
   );
+
+  it("HTTP/1.1 요청에 Host 헤더가 없으면 400 Bad Request로 응답한다", async () => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, "GET /hello HTTP/1.1\r\n\r\n");
+    expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
+  });
+
+  it("HTTP/1.0 요청은 Host 헤더가 없어도 200으로 응답한다", async () => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, "GET /hello HTTP/1.0\r\n\r\n");
+    expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
+  });
+
+  it("Host 헤더가 첫 번째 헤더가 아니어도 200으로 응답한다", async () => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(
+      port,
+      "GET /hello HTTP/1.1\r\nAccept: */*\r\nHost: localhost\r\n\r\n",
+    );
+    expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
+  });
+
+  it.each(["host", "HOST", "hOsT"])("Host 헤더 이름이 %s여도 200으로 응답한다", async (name) => {
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const { port } = server?.address() as AddressInfo;
+    const response = await sendRaw(port, `GET /hello HTTP/1.1\r\n${name}: localhost\r\n\r\n`);
+    expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
+  });
 });

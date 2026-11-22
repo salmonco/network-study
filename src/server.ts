@@ -29,8 +29,10 @@ export const createServer = () => {
       chunks.push(chunk);
       if (Buffer.concat(chunks).includes("\r\n\r\n")) {
         const message = Buffer.concat(chunks).toString();
-        const requestLine = message.split("\r\n")[0] ?? "";
-        const tokens = requestLine.split(" ");
+        const requestHeader = message.split("\r\n\r\n")[0] ?? "";
+        const [requestLine, ...additionalRequestArr] = requestHeader.split("\r\n");
+        const additionalRequest = additionalRequestArr.join("\r\n");
+        const tokens = (requestLine ?? "").split(" ");
         if (tokens.length !== 3) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
@@ -44,6 +46,11 @@ export const createServer = () => {
         }
         if (!isAllowedHttpVersion(httpVersion)) {
           socket.write("HTTP/1.1 505 HTTP Version Not Supported\r\n\r\n");
+          socket.end();
+          return;
+        }
+        if (httpVersion !== "HTTP/1.0" && !additionalRequest.toUpperCase().includes("HOST")) {
+          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
           return;
         }
