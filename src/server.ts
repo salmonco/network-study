@@ -31,7 +31,6 @@ export const createServer = () => {
         const message = Buffer.concat(chunks).toString();
         const requestHeader = message.split("\r\n\r\n")[0] ?? "";
         const [requestLine, ...additionalRequestArr] = requestHeader.split("\r\n");
-        const additionalRequest = additionalRequestArr.join("\r\n");
         const headerList = additionalRequestArr.map((v) => v.split(":")[0]?.toUpperCase());
         const tokens = (requestLine ?? "").split(" ");
         if (tokens.length !== 3) {
