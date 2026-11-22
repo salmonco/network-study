@@ -49,7 +49,10 @@ export const createServer = () => {
           socket.end();
           return;
         }
-        if (httpVersion !== "HTTP/1.0" && !headerList.includes("HOST")) {
+        if (
+          (httpVersion !== "HTTP/1.0" && !headerList.includes("HOST")) ||
+          headerList.filter((h) => h === "HOST").length >= 2
+        ) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
           return;
