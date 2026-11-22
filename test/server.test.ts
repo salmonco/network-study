@@ -177,4 +177,14 @@ describe("HTTP Server", () => {
     const response = await sendRaw(port, `GET /hello HTTP/1.1\r\n${name}: localhost\r\n\r\n`);
     expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
   });
+
+  it.each(["X-Host: localhost", "User-Agent: Hostile", "Accept: host"])(
+    "Host 헤더 없이 %j만 있으면 400 Bad Request로 응답한다",
+    async (header) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(port, `GET /hello HTTP/1.1\r\n${header}\r\n\r\n`);
+      expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
+    },
+  );
 });
