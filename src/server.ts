@@ -32,7 +32,7 @@ export const createServer = () => {
         const requestHeader = message.split("\r\n\r\n")[0] ?? "";
         const [requestLine, ...additionalRequestArr] = requestHeader.split("\r\n");
         const headerList = additionalRequestArr.map((v) => {
-          const [name, value] = v.split(": ");
+          const [name, value] = v.split(":");
           const upperCaseName = name?.toUpperCase();
           return [upperCaseName, value];
         });

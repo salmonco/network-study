@@ -218,4 +218,14 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
     },
   );
+
+  it.each(["Host:localhost", "Host:\tlocalhost", "Host:   localhost"])(
+    "콜론 뒤 공백이 %j처럼 없거나 여러 개여도 200으로 응답한다",
+    async (header) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(port, `GET /hello HTTP/1.1\r\n${header}\r\n\r\n`);
+      expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
+    },
+  );
 });
