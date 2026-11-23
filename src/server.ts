@@ -36,6 +36,11 @@ export const createServer = () => {
           const upperCaseName = name?.toUpperCase();
           return [upperCaseName, value];
         });
+        if (headerList.filter((v) => v[0] !== v[0]?.trim()).length >= 1) {
+          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+          socket.end();
+          return;
+        }
         const tokens = (requestLine ?? "").split(" ");
         if (tokens.length !== 3) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
