@@ -31,21 +31,6 @@ export const createServer = () => {
         const message = Buffer.concat(chunks).toString();
         const requestHeader = message.split("\r\n\r\n")[0] ?? "";
         const [requestLine, ...additionalRequestArr] = requestHeader.split("\r\n");
-        const headerList = additionalRequestArr.map((v) => {
-          const [name, value] = v.split(":");
-          const upperCaseName = name?.toUpperCase();
-          return [upperCaseName, value];
-        });
-        if (headerList.filter((v) => v[0] !== v[0]?.trim()).length >= 1) {
-          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
-          socket.end();
-          return;
-        }
-        if (headerList.filter((v) => v[0] === undefined || v[1] === undefined).length >= 1) {
-          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
-          socket.end();
-          return;
-        }
         const tokens = (requestLine ?? "").split(" ");
         if (tokens.length !== 3) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
@@ -63,15 +48,6 @@ export const createServer = () => {
           socket.end();
           return;
         }
-        if (
-          httpVersion !== "HTTP/1.0" &&
-          (headerList.filter((v) => v[0] === "HOST").length === 0 ||
-            headerList.filter((v) => v[0] === "HOST").length >= 2)
-        ) {
-          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
-          socket.end();
-          return;
-        }
         const path = requestTarget?.split("?")[0];
         if (method === undefined || !isAllowedMethod(method)) {
           socket.write(
@@ -82,6 +58,28 @@ export const createServer = () => {
         }
         if (path === undefined || !isAllowedPath(path)) {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+          socket.end();
+          return;
+        }
+        const headerList = additionalRequestArr.map((v) => {
+          const [name, value] = v.split(":");
+          const upperCaseName = name?.toUpperCase();
+          return [upperCaseName, value];
+        });
+        if (
+          headerList.filter((v) => v[0] !== v[0]?.trim()).length >= 1 ||
+          headerList.filter((v) => v[0] === undefined || v[1] === undefined).length >= 1
+        ) {
+          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+          socket.end();
+          return;
+        }
+        if (
+          httpVersion !== "HTTP/1.0" &&
+          (headerList.filter((v) => v[0] === "HOST").length === 0 ||
+            headerList.filter((v) => v[0] === "HOST").length >= 2)
+        ) {
+          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
           return;
         }
