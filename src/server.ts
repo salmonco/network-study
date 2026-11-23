@@ -41,6 +41,11 @@ export const createServer = () => {
           socket.end();
           return;
         }
+        if (headerList.filter((v) => v[0] === undefined || v[1] === undefined).length >= 1) {
+          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+          socket.end();
+          return;
+        }
         const tokens = (requestLine ?? "").split(" ");
         if (tokens.length !== 3) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
