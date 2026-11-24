@@ -238,4 +238,18 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
     },
   );
+
+  it.each([
+    "Host: localhost\r\nFoo\tBar: x",
+    "Host: localhost\r\nFoo@Bar: x",
+    "Host: localhost\r\nFoo(Bar): x",
+  ])(
+    "이름에 token이 아닌 문자가 있는 헤더 %j가 있으면 400 Bad Request로 응답한다",
+    async (headers) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(port, `GET /hello HTTP/1.1\r\n${headers}\r\n\r\n`);
+      expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
+    },
+  );
 });
