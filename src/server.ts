@@ -23,7 +23,7 @@ const isAllowedHttpVersion = (version: string): version is (typeof allowedHttpVe
 };
 
 /**
- * @see https://www.rfc-editor.org/info/rfc9110/#section-5.6.2-2
+ * @see https://www.rfc-editor.org/info/rfc9110/#section-5.6.2
  */
 const tokenPattern = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
 
@@ -75,10 +75,7 @@ export const createServer = () => {
         });
         const headerNames = headerList.map((v) => v[0]);
         if (
-          headerNames.filter((v) => v !== v?.trim()).length >= 1 ||
           headerList.filter((v) => v[0] === undefined || v[1] === undefined).length >= 1 ||
-          headerNames.filter((v) => v === "").length >= 1 ||
-          headerNames.filter((v) => v?.includes(" ")).length >= 1 ||
           headerNames.filter((v) => v !== undefined && !isToken(v)).length >= 1
         ) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
