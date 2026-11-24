@@ -66,19 +66,19 @@ export const createServer = () => {
           const upperCaseName = name?.toUpperCase();
           return [upperCaseName, value];
         });
+        const headerNames = headerList.map((v) => v[0]);
         if (
-          headerList.filter((v) => v[0] !== v[0]?.trim()).length >= 1 ||
-          headerList.filter((v) => v[0] === undefined || v[1] === undefined).length >= 1
+          headerNames.filter((v) => v !== v?.trim()).length >= 1 ||
+          headerList.filter((v) => v[0] === undefined || v[1] === undefined).length >= 1 ||
+          headerNames.filter((v) => v === "").length >= 1 ||
+          headerNames.filter((v) => v?.includes(" ")).length >= 1
         ) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
           return;
         }
-        if (
-          httpVersion !== "HTTP/1.0" &&
-          (headerList.filter((v) => v[0] === "HOST").length === 0 ||
-            headerList.filter((v) => v[0] === "HOST").length >= 2)
-        ) {
+        const hostFieldLength = headerNames.filter((v) => v === "HOST").length;
+        if (httpVersion !== "HTTP/1.0" && (hostFieldLength == 0 || hostFieldLength >= 2)) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
           return;
