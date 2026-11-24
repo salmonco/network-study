@@ -45,6 +45,26 @@ export const createServer = () => {
           return;
         }
         const [method, requestTarget, httpVersion] = tokens;
+        const headerList = additionalRequestArr.map((v) => {
+          const [name, value] = v.split(":");
+          const upperCaseName = name?.toUpperCase();
+          return [upperCaseName, value];
+        });
+        const headerNames = headerList.map((v) => v[0]);
+        const hostFieldLength = headerNames.filter((v) => v === "HOST").length;
+        if (httpVersion !== "HTTP/1.0" && (hostFieldLength == 0 || hostFieldLength >= 2)) {
+          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+          socket.end();
+          return;
+        }
+        if (
+          headerList.filter((v) => v[0] === undefined || v[1] === undefined).length >= 1 ||
+          headerNames.filter((v) => v !== undefined && !isToken(v)).length >= 1
+        ) {
+          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+          socket.end();
+          return;
+        }
         if (httpVersion === undefined || !/^HTTP\/\d\.\d$/.test(httpVersion)) {
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
@@ -65,26 +85,6 @@ export const createServer = () => {
         }
         if (path === undefined || !isAllowedPath(path)) {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-          socket.end();
-          return;
-        }
-        const headerList = additionalRequestArr.map((v) => {
-          const [name, value] = v.split(":");
-          const upperCaseName = name?.toUpperCase();
-          return [upperCaseName, value];
-        });
-        const headerNames = headerList.map((v) => v[0]);
-        if (
-          headerList.filter((v) => v[0] === undefined || v[1] === undefined).length >= 1 ||
-          headerNames.filter((v) => v !== undefined && !isToken(v)).length >= 1
-        ) {
-          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
-          socket.end();
-          return;
-        }
-        const hostFieldLength = headerNames.filter((v) => v === "HOST").length;
-        if (httpVersion !== "HTTP/1.0" && (hostFieldLength == 0 || hostFieldLength >= 2)) {
-          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.end();
           return;
         }
