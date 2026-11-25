@@ -11,9 +11,14 @@ const isAllowedPath = (path: string): path is keyof typeof bodies => {
 };
 
 const allowedMethods = ["GET", "HEAD"] as const;
+const notAllowedMethods = ["POST", "PUT", "DELETE"] as const;
 
 const isAllowedMethod = (method: string): method is (typeof allowedMethods)[number] => {
   return allowedMethods.includes(method as (typeof allowedMethods)[number]);
+};
+
+const isNotAllowedMethod = (method: string): method is (typeof notAllowedMethods)[number] => {
+  return notAllowedMethods.includes(method as (typeof notAllowedMethods)[number]);
 };
 
 const allowedHttpVersions = ["HTTP/1.0", "HTTP/1.1"] as const;
@@ -76,10 +81,15 @@ export const createServer = () => {
           return;
         }
         const path = requestTarget?.split("?")[0];
-        if (method === undefined || !isAllowedMethod(method)) {
+        if (method === undefined || (!isAllowedMethod(method) && isNotAllowedMethod(method))) {
           socket.write(
             `HTTP/1.1 405 Method Not Allowed\r\nAllow: ${allowedMethods.join(", ")}\r\n\r\n`,
           );
+          socket.end();
+          return;
+        }
+        if (!isAllowedMethod(method) && !isNotAllowedMethod(method)) {
+          socket.write(`HTTP/1.1 501 Not Implemented\r\n\r\n`);
           socket.end();
           return;
         }
