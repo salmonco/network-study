@@ -81,6 +81,11 @@ export const createServer = () => {
           return;
         }
         const path = requestTarget?.split("?")[0];
+        if (!path?.startsWith("/")) {
+          socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
+          socket.end();
+          return;
+        }
         if (method === undefined || !isToken(method)) {
           socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
           socket.end();
