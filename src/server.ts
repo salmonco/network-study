@@ -81,7 +81,12 @@ export const createServer = () => {
           return;
         }
         const path = requestTarget?.split("?")[0];
-        if (method === undefined || (!isAllowedMethod(method) && isNotAllowedMethod(method))) {
+        if (method === undefined || !isToken(method)) {
+          socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
+          socket.end();
+          return;
+        }
+        if (!isAllowedMethod(method) && isNotAllowedMethod(method)) {
           socket.write(
             `HTTP/1.1 405 Method Not Allowed\r\nAllow: ${allowedMethods.join(", ")}\r\n\r\n`,
           );

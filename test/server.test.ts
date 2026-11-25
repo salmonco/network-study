@@ -269,4 +269,14 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 501 Not Implemented\r\n\r\n");
     },
   );
+
+  it.each(["G(T", "GE@T", "GET,"])(
+    "메서드 %j가 token이 아니면 400 Bad Request로 응답한다",
+    async (method) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(port, `${method} /hello HTTP/1.1\r\nHost: localhost\r\n\r\n`);
+      expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
+    },
+  );
 });
