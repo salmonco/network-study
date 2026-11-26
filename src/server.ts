@@ -34,7 +34,7 @@ const tokenPattern = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
 
 const isToken = (s: string) => tokenPattern.test(s);
 
-const isOriginForm = (requestTarget: string) => requestTarget.startsWith("http");
+const isAbsoluteForm = (requestTarget: string) => requestTarget.startsWith("http");
 
 export const createServer = () => {
   return net.createServer((socket) => {
@@ -83,7 +83,7 @@ export const createServer = () => {
           return;
         }
         const parsedRequestTarget =
-          requestTarget !== undefined && isOriginForm(requestTarget)
+          requestTarget !== undefined && isAbsoluteForm(requestTarget)
             ? "/" + requestTarget.split("//")[1]?.split("/")[1]
             : requestTarget;
         const path = parsedRequestTarget?.split("?")[0];
