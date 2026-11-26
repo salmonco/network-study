@@ -80,7 +80,10 @@ export const createServer = () => {
           socket.end();
           return;
         }
-        const path = requestTarget?.split("?")[0];
+        const parsedRequestTarget = requestTarget?.startsWith("http")
+          ? "/" + requestTarget.split("//")[1]?.split("/")[1]
+          : requestTarget;
+        const path = parsedRequestTarget?.split("?")[0];
         if (!path?.startsWith("/")) {
           socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
           socket.end();

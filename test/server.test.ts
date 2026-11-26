@@ -292,4 +292,17 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
     },
   );
+
+  it.each(["http://localhost/hello", "http://localhost/hello?x=1"])(
+    "요청 대상이 %s처럼 absolute-form이어도 경로에 맞는 본문을 응답한다",
+    async (requestTarget) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(
+        port,
+        `GET ${requestTarget} HTTP/1.1\r\nHost: localhost\r\n\r\n`,
+      );
+      expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello");
+    },
+  );
 });
