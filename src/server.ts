@@ -83,9 +83,12 @@ export const createServer = () => {
           return;
         }
         const authorityAndPath = requestTarget?.split("://")[1];
+        const indexOfFirstPath = authorityAndPath?.indexOf("/");
         const parsedRequestTarget =
           requestTarget !== undefined && isAbsoluteForm(requestTarget)
-            ? authorityAndPath?.substring(authorityAndPath?.indexOf("/"))
+            ? indexOfFirstPath === undefined || indexOfFirstPath === -1
+              ? "/"
+              : authorityAndPath?.substring(indexOfFirstPath)
             : requestTarget;
         const path = parsedRequestTarget?.split("?")[0];
         if (!path?.startsWith("/")) {

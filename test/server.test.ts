@@ -318,4 +318,17 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 404 Not Found\r\n\r\n");
     },
   );
+
+  it.each(["http://localhost", "http://localhost?x=1"])(
+    "absolute-form 요청 대상 %s처럼 경로가 비어 있으면 /로 보고 200으로 응답한다",
+    async (requestTarget) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(
+        port,
+        `GET ${requestTarget} HTTP/1.1\r\nHost: localhost\r\n\r\n`,
+      );
+      expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
+    },
+  );
 });
