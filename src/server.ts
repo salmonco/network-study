@@ -34,6 +34,8 @@ const tokenPattern = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
 
 const isToken = (s: string) => tokenPattern.test(s);
 
+const isOriginForm = (requestTarget: string) => requestTarget.startsWith("http");
+
 export const createServer = () => {
   return net.createServer((socket) => {
     const chunks: Buffer[] = [];
@@ -80,9 +82,10 @@ export const createServer = () => {
           socket.end();
           return;
         }
-        const parsedRequestTarget = requestTarget?.startsWith("http")
-          ? "/" + requestTarget.split("//")[1]?.split("/")[1]
-          : requestTarget;
+        const parsedRequestTarget =
+          requestTarget !== undefined && isOriginForm(requestTarget)
+            ? "/" + requestTarget.split("//")[1]?.split("/")[1]
+            : requestTarget;
         const path = parsedRequestTarget?.split("?")[0];
         if (!path?.startsWith("/")) {
           socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
