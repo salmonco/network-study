@@ -34,8 +34,12 @@ const tokenPattern = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
 
 const isToken = (s: string) => tokenPattern.test(s);
 
-const isAbsoluteForm = (requestTarget: string) =>
-  requestTarget.startsWith("http://") || requestTarget.startsWith("https://");
+const isAbsoluteForm = (requestTarget: string) => {
+  const upperCaseRequestTarget = requestTarget.toUpperCase();
+  return (
+    upperCaseRequestTarget.startsWith("HTTP://") || upperCaseRequestTarget.startsWith("HTTPS://")
+  );
+};
 
 export const createServer = () => {
   return net.createServer((socket) => {
