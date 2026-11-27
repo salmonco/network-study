@@ -35,7 +35,7 @@ const tokenPattern = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
 const isToken = (s: string) => tokenPattern.test(s);
 
 const isAbsoluteForm = (requestTarget: string) =>
-  requestTarget.startsWith("http") && requestTarget.includes("://");
+  requestTarget.startsWith("http://") || requestTarget.startsWith("https://");
 
 export const createServer = () => {
   return net.createServer((socket) => {

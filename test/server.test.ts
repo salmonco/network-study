@@ -344,4 +344,17 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
     },
   );
+
+  it.each(["httpfoo://localhost/hello", "httpx://localhost/hello"])(
+    "요청 대상 %j처럼 scheme이 http/https가 아니면 400 Bad Request로 응답한다",
+    async (requestTarget) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(
+        port,
+        `GET ${requestTarget} HTTP/1.1\r\nHost: localhost\r\n\r\n`,
+      );
+      expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
+    },
+  );
 });
