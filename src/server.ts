@@ -119,6 +119,11 @@ export const createServer = () => {
           }
           parsedRequestTarget = toOriginForm(rest);
         }
+        if (parsedRequestTarget?.includes("#")) {
+          socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
+          socket.end();
+          return;
+        }
         const path = parsedRequestTarget?.split("?")[0];
         if (!path?.startsWith("/")) {
           socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
