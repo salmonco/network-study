@@ -41,6 +41,9 @@ const isAbsoluteForm = (requestTarget: string) => {
   );
 };
 
+const hasAuthority = (absoluteForm: string) =>
+  absoluteForm.split("://")[1]?.split(/[\/\?\#]/)[0] !== "";
+
 export const createServer = () => {
   return net.createServer((socket) => {
     const chunks: Buffer[] = [];
@@ -95,6 +98,13 @@ export const createServer = () => {
               ? "/"
               : authorityAndPath?.substring(indexOfFirstPath)
             : requestTarget;
+        if (requestTarget !== undefined && isAbsoluteForm(requestTarget)) {
+          if (!hasAuthority(requestTarget)) {
+            socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
+            socket.end();
+            return;
+          }
+        }
         const path = parsedRequestTarget?.split("?")[0];
         if (!path?.startsWith("/")) {
           socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
