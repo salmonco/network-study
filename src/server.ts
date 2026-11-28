@@ -41,8 +41,27 @@ const isAbsoluteForm = (requestTarget: string) => {
   );
 };
 
-const hasAuthority = (absoluteForm: string) =>
-  absoluteForm.split("://")[1]?.split(/[\/\?\#]/)[0] !== "";
+/**
+ * authority는 "//" 뒤에서 시작해 처음 나오는 "/", "?", "#" 또는 끝에서 끝난다.
+ * @see https://www.rfc-editor.org/rfc/rfc3986#section-3.2
+ */
+const splitAbsoluteForm = (absoluteForm: string) => {
+  const afterScheme = absoluteForm.slice(absoluteForm.indexOf("://") + "://".length);
+  const authorityEnd = afterScheme.search(/[/?#]/);
+  if (authorityEnd === -1) {
+    return { authority: afterScheme, rest: "" };
+  }
+  return {
+    authority: afterScheme.slice(0, authorityEnd),
+    rest: afterScheme.slice(authorityEnd),
+  };
+};
+
+/**
+ * 경로가 비어 있으면 "/"로 본다.
+ * @see https://www.rfc-editor.org/rfc/rfc9112#section-3.2.1
+ */
+const toOriginForm = (rest: string) => (rest.startsWith("/") ? rest : "/" + rest);
 
 export const createServer = () => {
   return net.createServer((socket) => {
@@ -90,20 +109,15 @@ export const createServer = () => {
           socket.end();
           return;
         }
-        const authorityAndPath = requestTarget?.split("://")[1];
-        const indexOfFirstPath = authorityAndPath?.indexOf("/");
-        const parsedRequestTarget =
-          requestTarget !== undefined && isAbsoluteForm(requestTarget)
-            ? indexOfFirstPath === undefined || indexOfFirstPath === -1
-              ? "/"
-              : authorityAndPath?.substring(indexOfFirstPath)
-            : requestTarget;
+        let parsedRequestTarget = requestTarget;
         if (requestTarget !== undefined && isAbsoluteForm(requestTarget)) {
-          if (!hasAuthority(requestTarget)) {
+          const { authority, rest } = splitAbsoluteForm(requestTarget);
+          if (authority === "") {
             socket.write(`HTTP/1.1 400 Bad Request\r\n\r\n`);
             socket.end();
             return;
           }
+          parsedRequestTarget = toOriginForm(rest);
         }
         const path = parsedRequestTarget?.split("?")[0];
         if (!path?.startsWith("/")) {

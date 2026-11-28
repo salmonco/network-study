@@ -383,4 +383,17 @@ describe("HTTP Server", () => {
       expect(response).toBe("HTTP/1.1 400 Bad Request\r\n\r\n");
     },
   );
+
+  it.each(["http://localhost?next=/hello", "http://localhost?a=/hi-ko"])(
+    "absolute-form 요청 대상 %s처럼 query에 /가 있어도 경로는 비어 있으므로 /로 보고 200으로 응답한다",
+    async (requestTarget) => {
+      await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+      const { port } = server?.address() as AddressInfo;
+      const response = await sendRaw(
+        port,
+        `GET ${requestTarget} HTTP/1.1\r\nHost: localhost\r\n\r\n`,
+      );
+      expect(response).toBe("HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
+    },
+  );
 });
